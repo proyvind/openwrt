@@ -98,6 +98,21 @@ endef
 $(eval $(call KernelPackage,lib-crc32c))
 
 
+define KernelPackage/lib-crc-t10dif
+  SUBMENU:=$(LIB_MENU)
+  TITLE:=CRC T10DIF support
+  KCONFIG:=CONFIG_CRYPTO_CRCT10DIF
+  FILES:=$(LINUX_DIR)/lib/crc-t10dif.ko
+  AUTOLOAD:=$(call AutoProbe,libcrc32c)
+endef
+
+define KernelPackage/lib-crc-t10dif/description
+ Kernel module for CRC T10DIF support
+endef
+
+$(eval $(call KernelPackage,lib-crc-t10dif))
+
+
 define KernelPackage/lib-lzo
   SUBMENU:=$(LIB_MENU)
   TITLE:=LZO support
