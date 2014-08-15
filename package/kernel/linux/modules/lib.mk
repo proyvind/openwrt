@@ -103,7 +103,7 @@ define KernelPackage/lib-crc-t10dif
   TITLE:=CRC T10DIF support
   KCONFIG:=CONFIG_CRYPTO_CRCT10DIF
   FILES:=$(LINUX_DIR)/lib/crc-t10dif.ko
-  AUTOLOAD:=$(call AutoProbe,libcrc32c)
+  AUTOLOAD:=$(call AutoProbe,crc-t10dif)
 endef
 
 define KernelPackage/lib-crc-t10dif/description
