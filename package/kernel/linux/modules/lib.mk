@@ -100,14 +100,16 @@ $(eval $(call KernelPackage,lib-crc32c))
 
 define KernelPackage/lib-crc-t10dif
   SUBMENU:=$(LIB_MENU)
-  TITLE:=CRC T10DIF support
+  TITLE:=CRCT10DIF algorithm
   KCONFIG:=CONFIG_CRYPTO_CRCT10DIF
   FILES:=$(LINUX_DIR)/lib/crc-t10dif.ko
   AUTOLOAD:=$(call AutoProbe,crc-t10dif)
 endef
 
 define KernelPackage/lib-crc-t10dif/description
- Kernel module for CRC T10DIF support
+ CRC T10 Data Integrity Field computation is being cast as                                                                                                                       │  
+ a crypto transform.  This allows for faster crc t10 diff                                                                                                                        │  
+ transforms to be used if they are available.                                                                                                                                    │  
 endef
 
 $(eval $(call KernelPackage,lib-crc-t10dif))
