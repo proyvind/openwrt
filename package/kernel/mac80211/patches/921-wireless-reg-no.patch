@@ -1,0 +1,22 @@
+--- a/net/wireless/reg.c.orig~	2014-08-17 02:25:48.289057448 +0200
++++ b/net/wireless/reg.c	2014-08-17 02:25:50.182077065 +0200
+@@ -89,8 +89,8 @@ enum reg_request_treatment {
+ 
+ static struct regulatory_request core_request_world = {
+ 	.initiator = NL80211_REGDOM_SET_BY_CORE,
+-	.alpha2[0] = '0',
+-	.alpha2[1] = '0',
++	.alpha2[0] = 'N',
++	.alpha2[1] = 'O',
+ 	.intersect = false,
+ 	.processed = true,
+ 	.country_ie_env = ENVIRON_ANY,
+@@ -257,7 +257,7 @@ static const struct ieee80211_regdomain
+ static const struct ieee80211_regdomain *cfg80211_world_regdom =
+ 	&world_regdom;
+ 
+-static char *ieee80211_regdom = "00";
++static char *ieee80211_regdom = "NO";
+ static char user_alpha2[2];
+ 
+ module_param(ieee80211_regdom, charp, 0444);
