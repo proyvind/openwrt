@@ -1,0 +1,117 @@
+--- compat-wireless-2014-05-22/drivers/net/wireless/ath/regd.c.orig~	2014-08-17 11:41:24.194987144 +0200
++++ compat-wireless-2014-05-22/drivers/net/wireless/ath/regd.c	2014-08-17 11:50:18.924022280 +0200
+@@ -215,41 +215,20 @@ EXPORT_SYMBOL(ath_is_world_regd);
+ 
+ static const struct ieee80211_regdomain *ath_default_world_regdomain(void)
+ {
+-	/* this is the most restrictive */
+-	return &ath_world_regdom_64;
++	/* this is the least restrictive */
++	return &ath_world_regdom_60_61_62;
+ }
+ 
+ static const struct
+ ieee80211_regdomain *ath_world_regdomain(struct ath_regulatory *reg)
+ {
+-	switch (reg->regpair->reg_domain) {
+-	case 0x60:
+-	case 0x61:
+-	case 0x62:
+ 		return &ath_world_regdom_60_61_62;
+-	case 0x63:
+-	case 0x65:
+-		return &ath_world_regdom_63_65;
+-	case 0x64:
+-		return &ath_world_regdom_64;
+-	case 0x66:
+-	case 0x69:
+-		return &ath_world_regdom_66_69;
+-	case 0x67:
+-	case 0x68:
+-	case 0x6A:
+-	case 0x6C:
+-		return &ath_world_regdom_67_68_6A_6C;
+-	default:
+-		WARN_ON(1);
+-		return ath_default_world_regdomain();
+-	}
+ }
+ 
+ bool ath_is_49ghz_allowed(u16 regdomain)
+ {
+ 	/* possibly more */
+-	return regdomain == MKK9_MKKC;
++	return true;
+ }
+ EXPORT_SYMBOL(ath_is_49ghz_allowed);
+ 
+@@ -443,22 +422,8 @@ static void ath_reg_apply_world_flags(st
+ 				      enum nl80211_reg_initiator initiator,
+ 				      struct ath_regulatory *reg)
+ {
+-	switch (reg->regpair->reg_domain) {
+-	case 0x60:
+-	case 0x63:
+-	case 0x66:
+-	case 0x67:
+-	case 0x6C:
+-		ath_reg_apply_beaconing_flags(wiphy, reg, initiator);
+-		break;
+-	case 0x68:
+ 		ath_reg_apply_beaconing_flags(wiphy, reg, initiator);
+ 		ath_reg_apply_ir_flags(wiphy, reg, initiator);
+-		break;
+-	default:
+-		if (ath_reg_dyn_country_user_allow(reg))
+-			ath_reg_apply_beaconing_flags(wiphy, reg, initiator);
+-	}
+ }
+ 
+ static u16 ath_regd_find_country_by_name(char *alpha2)
+@@ -685,7 +650,7 @@ static void ath_regd_sanitize(struct ath
+ 	if (reg->current_rd != COUNTRY_ERD_FLAG)
+ 		return;
+ 	printk(KERN_DEBUG "ath: EEPROM regdomain sanitized\n");
+-	reg->current_rd = 0x64;
++	reg->current_rd = 0x60;
+ }
+ 
+ static int __ath_regd_init(struct ath_regulatory *reg)
+@@ -706,13 +671,14 @@ static int __ath_regd_init(struct ath_re
+ 	}
+ 
+ 	regdmn = ath_regd_get_eepromRD(reg);
+-	reg->country_code = ath_regd_get_default_country(regdmn);
++	reg->country_code = CTRY_NORWAY;
++	ath_regd_get_default_country(regdmn);
+ 
+ 	if (reg->country_code == CTRY_DEFAULT &&
+ 	    regdmn == CTRY_DEFAULT) {
+ 		printk(KERN_DEBUG "ath: EEPROM indicates default "
+ 		       "country code should be used\n");
+-		reg->country_code = CTRY_UNITED_STATES;
++		reg->country_code = CTRY_NORWAY;
+ 	}
+ 
+ 	if (reg->country_code == CTRY_DEFAULT) {
+@@ -746,13 +712,13 @@ static int __ath_regd_init(struct ath_re
+ 	if (!country)
+ 		country = ath_regd_find_country_by_rd(regdmn);
+ 
+-	if (country) {
+-		reg->alpha2[0] = country->isoName[0];
+-		reg->alpha2[1] = country->isoName[1];
+-	} else {
+-		reg->alpha2[0] = '0';
+-		reg->alpha2[1] = '0';
+-	}
++       if (country) {
++               reg->alpha2[0] = country->isoName[0];
++               reg->alpha2[1] = country->isoName[1];
++       } else {
++               reg->alpha2[0] = 'N';
++               reg->alpha2[1] = 'O';
++       }
+ 
+ 	printk(KERN_DEBUG "ath: Country alpha2 being used: %c%c\n",
+ 		reg->alpha2[0], reg->alpha2[1]);
