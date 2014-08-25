@@ -1,12 +1,3 @@
---- broadcom-wl-5.10.56.27.3/driver-mini/nvram_stub.c~	2014-08-25 20:28:19.252335596 +0200
-+++ broadcom-wl-5.10.56.27.3/driver-mini/nvram_stub.c	2014-08-25 20:56:45.375557188 +0200
-@@ -1,3 +1,6 @@
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+
- #include <typedefs.h>
- #include <bcmdefs.h>
- #include <osl.h>
 --- broadcom-wl-5.10.56.27.3/driver/nvram_stub.c~	2014-08-25 20:56:19.835558860 +0200
 +++ broadcom-wl-5.10.56.27.3/driver/nvram_stub.c	2014-08-25 20:56:24.415558560 +0200
 @@ -1,3 +1,6 @@
@@ -16,11 +7,3 @@
  #include <typedefs.h>
  #include <bcmdefs.h>
  #include <osl.h>
-@@ -7,6 +10,7 @@
- #include <bcmnvram.h>
- #include <proto/ethernet.h>
- 
-+
- #ifdef BCMDBG_ERR
- #define NVR_MSG(x) printf x
- #else
