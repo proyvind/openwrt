@@ -37,7 +37,8 @@ for i in ${patchdir}/${patchpattern} ; do
     [ -d "${i}" ] && echo "Ignoring subdirectory ${i}" && continue	
     echo ""
     echo "Applying ${i} using ${type}: " 
-    ${uncomp} ${i} | ${PATCH:-patch} -f -p1 -E -d ${targetdir} 
+    suffix=$(echo `basename ${i}`|cut -d- -f1)
+    ${uncomp} ${i} | ${PATCH:-patch} -f -p1 -E -d ${targetdir} -b --suffix .${suffix}~
     if [ $? != 0 ] ; then
         echo "Patch failed!  Please fix $i!"
 	exit 1
@@ -51,4 +52,4 @@ if [ "`find $targetdir/ '(' -name '*.rej' -o -name '.*.rej' ')' -print`" ] ; the
 fi
 
 # Remove backup files
-find $targetdir/ '(' -name '*.orig' -o -name '.*.orig' ')' -exec rm -f {} \;
+find $targetdir/ '(' -name '*.orig' -o -name '.*.orig' '.*~' ')' -exec rm -f {} \;
