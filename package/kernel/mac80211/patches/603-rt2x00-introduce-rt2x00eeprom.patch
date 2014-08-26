@@ -1,15 +1,5 @@
---- a/.local-symbols
-+++ b/.local-symbols
-@@ -281,6 +281,7 @@ RT2X00_LIB_FIRMWARE=
- RT2X00_LIB_CRYPTO=
- RT2X00_LIB_LEDS=
- RT2X00_LIB_DEBUGFS=
-+RT2X00_LIB_EEPROM=
- RT2X00_DEBUG=
- RTL_CARDS=
- RTL8192CE=
---- a/drivers/net/wireless/rt2x00/Kconfig
-+++ b/drivers/net/wireless/rt2x00/Kconfig
+--- backports-20140808/drivers/net/wireless/rt2x00/Kconfig.603~	2014-08-26 14:47:27.680569529 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/Kconfig	2014-08-26 14:47:27.803904199 +0200
 @@ -69,6 +69,7 @@ config RT2800PCI
  	select RT2X00_LIB_MMIO
  	select RT2X00_LIB_PCI
@@ -36,8 +26,8 @@
  config RT2X00_LIB_LEDS
  	boolean
  	default y if (RT2X00_LIB=y && LEDS_CLASS=y) || (RT2X00_LIB=m && LEDS_CLASS!=n)
---- a/drivers/net/wireless/rt2x00/Makefile
-+++ b/drivers/net/wireless/rt2x00/Makefile
+--- backports-20140808/drivers/net/wireless/rt2x00/Makefile.603~	2014-08-09 16:51:27.000000000 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/Makefile	2014-08-26 14:47:27.803904199 +0200
 @@ -7,6 +7,7 @@ rt2x00lib-$(CPTCFG_RT2X00_LIB_DEBUGFS)	+
  rt2x00lib-$(CPTCFG_RT2X00_LIB_CRYPTO)	+= rt2x00crypto.o
  rt2x00lib-$(CPTCFG_RT2X00_LIB_FIRMWARE)	+= rt2x00firmware.o
@@ -46,8 +36,8 @@
  
  obj-$(CPTCFG_RT2X00_LIB)		+= rt2x00lib.o
  obj-$(CPTCFG_RT2X00_LIB_MMIO)		+= rt2x00mmio.o
---- a/drivers/net/wireless/rt2x00/rt2800lib.h
-+++ b/drivers/net/wireless/rt2x00/rt2800lib.h
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2800lib.h.603~	2014-08-26 14:47:27.667236052 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2800lib.h	2014-08-26 14:47:27.803904199 +0200
 @@ -43,6 +43,8 @@ struct rt2800_drv_data {
  	} shmem_lock;
  };
@@ -73,8 +63,8 @@
  	return rt2800ops->read_eeprom(rt2x00dev);
  }
  
---- a/drivers/net/wireless/rt2x00/rt2800soc.c
-+++ b/drivers/net/wireless/rt2x00/rt2800soc.c
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2800soc.c.603~	2014-08-26 14:47:27.710569855 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2800soc.c	2014-08-26 14:47:27.803904199 +0200
 @@ -102,19 +102,6 @@ static int rt2800soc_set_device_state(st
  	return retval;
  }
@@ -103,31 +93,9 @@
  	.hwcrypt_disabled	= rt2800soc_hwcrypt_disabled,
  	.drv_write_firmware	= rt2800soc_write_firmware,
  	.drv_init_registers	= rt2800mmio_init_registers,
---- a/drivers/net/wireless/rt2x00/rt2x00.h
-+++ b/drivers/net/wireless/rt2x00/rt2x00.h
-@@ -694,6 +694,7 @@ enum rt2x00_capability_flags {
- 	REQUIRE_SW_SEQNO,
- 	REQUIRE_HT_TX_DESC,
- 	REQUIRE_PS_AUTOWAKE,
-+	REQUIRE_EEPROM_FILE,
- 
- 	/*
- 	 * Capabilities
-@@ -963,6 +964,11 @@ struct rt2x00_dev {
- 	const struct firmware *fw;
- 
- 	/*
-+	 * EEPROM image.
-+	 */
-+	const struct firmware *eeprom_file;
-+
-+	/*
- 	 * FIFO for storing tx status reports between isr and tasklet.
- 	 */
- 	DECLARE_KFIFO_PTR(txstatus_fifo, u32);
---- a/drivers/net/wireless/rt2x00/rt2x00dev.c
-+++ b/drivers/net/wireless/rt2x00/rt2x00dev.c
-@@ -1327,6 +1327,10 @@ int rt2x00lib_probe_dev(struct rt2x00_de
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2x00dev.c.603~	2014-08-09 16:51:26.000000000 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2x00dev.c	2014-08-26 15:46:59.392430695 +0200
+@@ -1334,6 +1334,10 @@ int rt2x00lib_probe_dev(struct rt2x00_de
  	INIT_DELAYED_WORK(&rt2x00dev->autowakeup_work, rt2x00lib_autowakeup);
  	INIT_WORK(&rt2x00dev->sleep_work, rt2x00lib_sleep);
  
@@ -138,10 +106,10 @@
  	/*
  	 * Let the driver probe the device to detect the capabilities.
  	 */
-@@ -1457,6 +1461,11 @@ void rt2x00lib_remove_dev(struct rt2x00_
+@@ -1474,6 +1478,11 @@ void rt2x00lib_remove_dev(struct rt2x00_
+ 	 * Free the driver data.
  	 */
- 	if (rt2x00dev->drv_data)
- 		kfree(rt2x00dev->drv_data);
+ 	kfree(rt2x00dev->drv_data);
 +
 +	/*
 +	 * Free EEPROM image.
@@ -150,8 +118,8 @@
  }
  EXPORT_SYMBOL_GPL(rt2x00lib_remove_dev);
  
---- /dev/null
-+++ b/drivers/net/wireless/rt2x00/rt2x00eeprom.c
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2x00eeprom.c.603~	2014-08-26 14:47:27.807237568 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2x00eeprom.c	2014-08-26 14:47:27.807237568 +0200
 @@ -0,0 +1,111 @@
 +/*
 +	Copyright (C) 2004 - 2009 Ivo van Doorn <IvDoorn@gmail.com>
@@ -264,8 +232,30 @@
 +	release_firmware(rt2x00dev->eeprom_file);
 +	rt2x00dev->eeprom_file = NULL;
 +}
---- a/drivers/net/wireless/rt2x00/rt2x00lib.h
-+++ b/drivers/net/wireless/rt2x00/rt2x00lib.h
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2x00.h.603~	2014-08-26 14:47:27.800570830 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2x00.h	2014-08-26 15:42:57.709820464 +0200
+@@ -695,6 +695,7 @@ enum rt2x00_capability_flags {
+ 	REQUIRE_HT_TX_DESC,
+ 	REQUIRE_PS_AUTOWAKE,
+ 	REQUIRE_DELAYED_RFKILL,
++	REQUIRE_EEPROM_FILE,
+ 
+ 	/*
+ 	 * Capabilities
+@@ -964,6 +965,11 @@ struct rt2x00_dev {
+ 	const struct firmware *fw;
+ 
+ 	/*
++	 * EEPROM image.
++	 */
++	const struct firmware *eeprom_file;
++
++	/*
+ 	 * FIFO for storing tx status reports between isr and tasklet.
+ 	 */
+ 	DECLARE_KFIFO_PTR(txstatus_fifo, u32);
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2x00lib.h.603~	2014-08-09 16:51:26.000000000 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2x00lib.h	2014-08-26 14:47:27.807237568 +0200
 @@ -320,6 +320,22 @@ static inline void rt2x00lib_free_firmwa
  #endif /* CPTCFG_RT2X00_LIB_FIRMWARE */
  
@@ -289,8 +279,8 @@
   * Debugfs handlers.
   */
  #ifdef CPTCFG_RT2X00_LIB_DEBUGFS
---- a/drivers/net/wireless/rt2x00/rt2x00soc.c
-+++ b/drivers/net/wireless/rt2x00/rt2x00soc.c
+--- backports-20140808/drivers/net/wireless/rt2x00/rt2x00soc.c.603~	2014-08-09 16:51:26.000000000 +0200
++++ backports-20140808/drivers/net/wireless/rt2x00/rt2x00soc.c	2014-08-26 14:47:27.807237568 +0200
 @@ -92,6 +92,7 @@ int rt2x00soc_probe(struct platform_devi
  	rt2x00dev->hw = hw;
  	rt2x00dev->irq = platform_get_irq(pdev, 0);
@@ -299,3 +289,13 @@
  
  	rt2x00_set_chip_intf(rt2x00dev, RT2X00_CHIP_INTF_SOC);
  
+--- backports-20140808/.local-symbols.603~	2014-08-26 14:47:27.617235511 +0200
++++ backports-20140808/.local-symbols	2014-08-26 14:47:27.803904199 +0200
+@@ -279,6 +279,7 @@ RT2X00_LIB_FIRMWARE=
+ RT2X00_LIB_CRYPTO=
+ RT2X00_LIB_LEDS=
+ RT2X00_LIB_DEBUGFS=
++RT2X00_LIB_EEPROM=
+ RT2X00_DEBUG=
+ RTL_CARDS=
+ RTL8192CE=
