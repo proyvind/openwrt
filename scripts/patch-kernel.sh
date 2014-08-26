@@ -52,4 +52,4 @@ if [ "`find $targetdir/ '(' -name '*.rej' -o -name '.*.rej' ')' -print`" ] ; the
 fi
 
 # Remove backup files
-find $targetdir/ '(' -name '*.orig' -o -name '.*.orig' '.*~' ')' -exec rm -f {} \;
+find $targetdir/ '(' -name '*.orig' -o -name '.*.orig' -o -name '.*~' ')' -exec rm -f {} \;
