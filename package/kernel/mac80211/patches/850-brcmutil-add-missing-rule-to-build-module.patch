@@ -1,0 +1,10 @@
+--- backports-20140808/drivers/net/wireless/Makefile~	2014-08-09 16:51:27.000000000 +0200
++++ backports-20140808/drivers/net/wireless/Makefile	2014-08-26 18:56:19.644544818 +0200
+@@ -55,6 +55,7 @@ obj-$(CPTCFG_WL_TI)	+= ti/
+ 
+ obj-$(CPTCFG_MWIFIEX)	+= mwifiex/
+ 
++obj-$(CPTCFG_BRCMUTIL)	+= brcm80211/
+ obj-$(CPTCFG_BRCMFMAC)	+= brcm80211/
+ obj-$(CPTCFG_BRCMSMAC)	+= brcm80211/
+ 
