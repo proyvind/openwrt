@@ -1,0 +1,7 @@
+--- linux-3.10.49/arch/mips/bcm47xx/board.c.errno~	2014-08-26 19:37:01.997386437 +0200
++++ linux-3.10.49/arch/mips/bcm47xx/board.c	2014-08-26 19:36:35.307106595 +0200
+@@ -1,3 +1,4 @@
++#include <linux/errno.h>
+ #include <linux/export.h>
+ #include <linux/string.h>
+ #include <bcm47xx_board.h>
